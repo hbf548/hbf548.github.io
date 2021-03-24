@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="剖析SPRING-IOC源码（一）花了3天时间来看源码，还是有点收获的，今天就来再次解析一次，就当是巩固 可能对于上一篇文章有点不满意，所以又重新进行一个spring-ioc源码的分析，话不多说，我们开始。 这里先提前说一下什么Bean，什么是java对象，经过完整生命周期称为bean，也就是Spring Bean而java对象则是new出来的。Bean一定是java对象，而java对象不一定是B">
+<meta property="og:type" content="article">
+<meta property="og:title" content="剖析SPRING-IOC源码（一）">
+<meta property="og:url" content="http://yoursite.com/2020/07/12/%E5%89%96%E6%9E%90SPRING-IOC%E6%BA%90%E7%A0%81%EF%BC%88%E4%B8%80%EF%BC%89/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="剖析SPRING-IOC源码（一）花了3天时间来看源码，还是有点收获的，今天就来再次解析一次，就当是巩固 可能对于上一篇文章有点不满意，所以又重新进行一个spring-ioc源码的分析，话不多说，我们开始。 这里先提前说一下什么Bean，什么是java对象，经过完整生命周期称为bean，也就是Spring Bean而java对象则是new出来的。Bean一定是java对象，而java对象不一定是B">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://yoursite.com/2020/07/12/%E5%89%96%E6%9E%90SPRING-IOC%E6%BA%90%E7%A0%81%EF%BC%88%E4%B8%80%EF%BC%89/1.jpg">
+<meta property="og:image" content="http://yoursite.com/2020/07/12/%E5%89%96%E6%9E%90SPRING-IOC%E6%BA%90%E7%A0%81%EF%BC%88%E4%B8%80%EF%BC%89/2.jpg">
+<meta property="article:published_time" content="2020-07-12T00:21:00.000Z">
+<meta property="article:modified_time" content="2020-07-16T18:08:01.707Z">
+<meta property="article:author" content="javaboy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2020/07/12/%E5%89%96%E6%9E%90SPRING-IOC%E6%BA%90%E7%A0%81%EF%BC%88%E4%B8%80%EF%BC%89/1.jpg">
+
+<link rel="canonical" href="http://yoursite.com/2020/07/12/%E5%89%96%E6%9E%90SPRING-IOC%E6%BA%90%E7%A0%81%EF%BC%88%E4%B8%80%EF%BC%89/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>剖析SPRING-IOC源码（一） | Hexo</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Hexo</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/12/%E5%89%96%E6%9E%90SPRING-IOC%E6%BA%90%E7%A0%81%EF%BC%88%E4%B8%80%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="javaboy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          剖析SPRING-IOC源码（一）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-07-12 08:21:00" itemprop="dateCreated datePublished" datetime="2020-07-12T08:21:00+08:00">2020-07-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-07-17 02:08:01" itemprop="dateModified" datetime="2020-07-17T02:08:01+08:00">2020-07-17</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="剖析SPRING-IOC源码（一）"><a href="#剖析SPRING-IOC源码（一）" class="headerlink" title="剖析SPRING-IOC源码（一）"></a>剖析SPRING-IOC源码（一）</h1><p>花了3天时间来看源码，还是有点收获的，今天就来再次解析一次，就当是巩固</p>
+<p>可能对于上一篇文章有点不满意，所以又重新进行一个spring-ioc源码的分析，话不多说，我们开始。</p>
+<p><strong>这里先提前说一下什么Bean，什么是java对象，经过完整生命周期称为bean，也就是Spring Bean而java对象则是new出来的。Bean一定是java对象，而java对象不一定是Bean，简单的说就是bean是被spring管理的java对象</strong></p>
+<p>首先我们先初始化Spring</p>
+<pre class=" language-java"><code class="language-java"><span class="token comment" spellcheck="true">//初始化Spring 上下文 容器 环境</span>
+AnnotationConfigApplicationContext context <span class="token operator">=</span>
+<span class="token keyword">new</span> <span class="token class-name">AnnotationConfigApplicationContext</span><span class="token punctuation">(</span>AppConfig<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+<p>当然有的人是用后面这种方法，不过都一样的，都可以初始化，只是用后面这种方法是基于Xml构建你的spring</p>
+<pre class=" language-java"><code class="language-java">ClassPathXmlApplicationContext classPathXmlApplicationContext <span class="token operator">=</span>
+<span class="token keyword">new</span> <span class="token class-name">ClassPathXmlApplicationContext</span><span class="token punctuation">(</span><span class="token string">"spring.xml"</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+<p>由于现在JavaConfig风格+注解的方式来使用Spring，是Spring官方主推的，也是现在的主流方式，所以我们这里用第一种方法。</p>
+<p>创建<strong>AnnotationConfigApplicationContext</strong>对象，首先会跑到这里：</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token function">AnnotationConfigApplicationContext</span><span class="token punctuation">(</span>Class<span class="token operator">&lt;</span><span class="token operator">?</span><span class="token operator">></span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> annotatedClasses<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment" spellcheck="true">//调用无参构造函数，会先调用父类GenericApplicationContext的构造函数</span>
+<span class="token comment" spellcheck="true">//本类的构造函数里面，初始化了一个读取器：AnnotatedBeanDefinitionReader read，一个扫描器ClassPathBeanDefinitionScanner scanner</span>
+        <span class="token keyword">this</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment" spellcheck="true">//把传入的类进行注册，这里有两个情况，</span>
+        <span class="token comment" spellcheck="true">//传入传统的配置类</span>
+        <span class="token comment" spellcheck="true">//传入bean</span>
+        <span class="token comment" spellcheck="true">//看到后面会知道spring把传统的带上@Configuration的配置类称之为FULL配置类，不带@Configuration的称之为Lite配置类</span>
+        <span class="token comment" spellcheck="true">//但是我们这里先把带上@Configuration的配置类称之为传统配置类，不带的称之为普通bean</span>
+        <span class="token function">register</span><span class="token punctuation">(</span>annotatedClasses<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment" spellcheck="true">//刷新</span>
+        <span class="token function">refresh</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span></code></pre>
+<p>这个方法第一眼看上去，很简单，但是这三行代码包含了大千世界。</p>
+<h3 id="第一行代码解析"><a href="#第一行代码解析" class="headerlink" title="第一行代码解析"></a>第一行代码解析</h3><p>我们先来看第一行代码，通过<code>this()</code>的无参构造方法，他会跑到这里</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token function">AnnotationConfigApplicationContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment" spellcheck="true">//初始化一个Bean读取器</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>reader <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">AnnotatedBeanDefinitionReader</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment" spellcheck="true">//初始化一个扫描器，它仅仅是在我们外部手动调用 .scan 等方法才有用，常规方式是不会用到scanner对象的</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>scanner <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ClassPathBeanDefinitionScanner</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span></code></pre>
+<p>只有两行代码，但是不能直接看这两行代码，为什么呢？</p>
+<p>因为我们的<strong>AnnotationConfigApplicationContext</strong>他有父类，它会调用父类里的参构造方法</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token function">GenericApplicationContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>beanFactory <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">DefaultListableBeanFactory</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span></code></pre>
+<p>这个代码很简单，就是初始化了<strong>DefaultListableBeanFactory</strong>。</p>
+<p>接下来我们就来看看<strong>DefaultListableBeanFactory</strong>的关系图</p>
+<p><img src="1.jpg" alt=""></p>
+<p><strong>DefaultListableBeanFactory是相当重要的</strong>，从字面意思就可以看出它是一个Bean的工厂，什么是Bean的工厂？当然就是用来生产和获得Bean的。这个我上篇文章也讲过，不懂得可以看看。</p>
+<p>先回到<strong>AnnotationConfigApplicationContext</strong>的无参构造方法，让我们看看Spring在初始化<strong>AnnotatedBeanDefinitionReader</strong>的时候做了什么：</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token function">AnnotatedBeanDefinitionReader</span><span class="token punctuation">(</span>BeanDefinitionRegistry registry<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">(</span>registry<span class="token punctuation">,</span> <span class="token function">getOrCreateEnvironment</span><span class="token punctuation">(</span>registry<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span></code></pre>
+<p>这里的<strong>BeanDefinitionRegistry</strong>当然就是<strong>AnnotationConfigApplicationContext</strong>的实例了，这里又直接调用了此类其他的构造方法：</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token function">AnnotatedBeanDefinitionReader</span><span class="token punctuation">(</span>BeanDefinitionRegistry registry<span class="token punctuation">,</span> Environment environment<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        Assert<span class="token punctuation">.</span><span class="token function">notNull</span><span class="token punctuation">(</span>registry<span class="token punctuation">,</span> <span class="token string">"BeanDefinitionRegistry must not be null"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        Assert<span class="token punctuation">.</span><span class="token function">notNull</span><span class="token punctuation">(</span>environment<span class="token punctuation">,</span> <span class="token string">"Environment must not be null"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>registry <span class="token operator">=</span> registry<span class="token punctuation">;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>conditionEvaluator <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ConditionEvaluator</span><span class="token punctuation">(</span>registry<span class="token punctuation">,</span> environment<span class="token punctuation">,</span> null<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        AnnotationConfigUtils<span class="token punctuation">.</span><span class="token function">registerAnnotationConfigProcessors</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>registry<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span></code></pre>
+<p>看到这个方法的最后一行，进入<strong>registerAnnotationConfigProcessors</strong>方法：</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">registerAnnotationConfigProcessors</span><span class="token punctuation">(</span>BeanDefinitionRegistry registry<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">registerAnnotationConfigProcessors</span><span class="token punctuation">(</span>registry<span class="token punctuation">,</span> null<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span></code></pre>
+<p>再点进去，这个方法的返回值Set，但是上游方法并没有去接收这个返回值，所以这个方法的返回值也不是很重要了，当然方法内部给这个返回值赋值也不重要了。由于这个方法内容比较多，这里就把最核心的贴出来，这个方法的核心就是注册Spring内置的多个Bean：</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">if</span> <span class="token punctuation">(</span>beanFactory <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token punctuation">(</span>beanFactory<span class="token punctuation">.</span><span class="token function">getDependencyComparator</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">instanceof</span> <span class="token class-name">AnnotationAwareOrderComparator</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                beanFactory<span class="token punctuation">.</span><span class="token function">setDependencyComparator</span><span class="token punctuation">(</span>AnnotationAwareOrderComparator<span class="token punctuation">.</span>INSTANCE<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token punctuation">(</span>beanFactory<span class="token punctuation">.</span><span class="token function">getAutowireCandidateResolver</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">instanceof</span> <span class="token class-name">ContextAnnotationAutowireCandidateResolver</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                beanFactory<span class="token punctuation">.</span><span class="token function">setAutowireCandidateResolver</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">ContextAnnotationAutowireCandidateResolver</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>registry<span class="token punctuation">.</span><span class="token function">containsBeanDefinition</span><span class="token punctuation">(</span>CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            RootBeanDefinition def <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">RootBeanDefinition</span><span class="token punctuation">(</span>ConfigurationClassPostProcessor<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            def<span class="token punctuation">.</span><span class="token function">setSource</span><span class="token punctuation">(</span>source<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            beanDefs<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token function">registerPostProcessor</span><span class="token punctuation">(</span>registry<span class="token punctuation">,</span> def<span class="token punctuation">,</span> CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span></code></pre>
+<ol>
+<li>判断容器中是否已经存在了<strong>ConfigurationClassPostProcessor</strong> Bean</li>
+</ol>
+<ol>
+<li>如果不存在，就通过<strong>RootBeanDefinition</strong>的构造方法获得。</li>
+</ol>
+<ol>
+<li>执行<strong>registerPostProcessor</strong>方法，<strong>registerPostProcessor</strong>方法内部就是注册Bean，当然这里注册其他Bean也是一样的流程。</li>
+</ol>
+<p>太难了，这不就是我上一篇讲的知识嘛— —</p>
+<p><strong>ConfigurationClassPostProcessor</strong>的<strong>BeanDefinition</strong>，<strong>RootBeanDefinition</strong>是<strong>BeanDefinition</strong>的子类：</p>
+<p><img src="2.jpg" alt=""></p>
+<p>那么问题来了，<strong>BeanDefinition</strong>是什么？</p>
+<p><strong>顾名思义，它是用来描述Bean的，里面存放着关于Bean的一系列信息，比如Bean的作用域，Bean所对应的Class，是否懒加载，是否Primary等等，这个BeanDefinition也相当重要，我们以后会常常和它打交道。</strong></p>
+<p><strong>registerPostProcessor方法：</strong></p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">private</span> <span class="token keyword">static</span> BeanDefinitionHolder <span class="token function">registerPostProcessor</span><span class="token punctuation">(</span>
+            BeanDefinitionRegistry registry<span class="token punctuation">,</span> RootBeanDefinition definition<span class="token punctuation">,</span> String beanName<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+        definition<span class="token punctuation">.</span><span class="token function">setRole</span><span class="token punctuation">(</span>BeanDefinition<span class="token punctuation">.</span>ROLE_INFRASTRUCTURE<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        registry<span class="token punctuation">.</span><span class="token function">registerBeanDefinition</span><span class="token punctuation">(</span>beanName<span class="token punctuation">,</span> definition<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">BeanDefinitionHolder</span><span class="token punctuation">(</span>definition<span class="token punctuation">,</span> beanName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span></code></pre>
+<p>这方法为<strong>BeanDefinition</strong>设置了一个Role，ROLE_INFRASTRUCTURE代表这是spring内部的，并非用户定义的，然后又调用了<strong>registerBeanDefinition</strong>方法，</p>
+<p>再点进去，你会发现它是一个接口，没办法直接点进去了，首先要知道registry实现类是什么，那么它的实现是什么呢？答案是<strong>DefaultListableBeanFactory</strong>：</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">void</span> <span class="token function">registerBeanDefinition</span><span class="token punctuation">(</span>String beanName<span class="token punctuation">,</span> BeanDefinition beanDefinition<span class="token punctuation">)</span>
+            <span class="token keyword">throws</span> BeanDefinitionStoreException<span class="token punctuation">;</span></code></pre>
+<p>再点进去，核心在于下面两行代码：</p>
+<pre class=" language-java"><code class="language-java"><span class="token comment" spellcheck="true">//这里就是把beanName作为key，ScopedProxyMode作为value，推到map里面</span>
+<span class="token keyword">this</span><span class="token punctuation">.</span>beanDefinitionMap<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span>beanName<span class="token punctuation">,</span> beanDefinition<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment" spellcheck="true">//beanDefinitionNames就是一个List&lt;String>,这里就是把beanName放到List中去</span>
+<span class="token keyword">this</span><span class="token punctuation">.</span>beanDefinitionNames<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>beanName<span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+<p>从这里可以看出<strong>DefaultListableBeanFactory</strong>就是我们所说的容器了，里面放着<strong>beanDefinitionMap</strong>，<strong>beanDefinitionNames</strong>，<strong>beanDefinitionMap</strong>是一个<strong>hashMap</strong>，<strong>beanName</strong>作为Key,<strong>beanDefinition</strong>作为Value，<strong>beanDefinitionNames</strong>是一个集合，里面存放了<strong>beanName</strong></p>
+<p>这里仅仅是注册，可以简单的理解为把一些原料放入工厂，工厂还没有真正的去生产。</p>
+<p><strong>上面已经介绍过，这里会一连串注册好几个Bean，在这其中最重要的一个Bean（没有之一）就是BeanDefinitionRegistryPostProcessor Bean。</strong></p>
+<p><strong>ConfigurationClassPostProcessor实现BeanDefinitionRegistryPostProcessor接口，BeanDefinitionRegistryPostProcessor接口又扩展了BeanFactoryPostProcessor接口，BeanFactoryPostProcessor是Spring的扩展点之一，ConfigurationClassPostProcessor是Spring极为重要的一个类，必须牢牢的记住上面所说的这个类和它的继承关系。</strong></p>
+<p><strong>BeanPostProcessor接口也是Spring的扩展点之一。</strong></p>
+<p>好了，到这里实例化<strong>AnnotatedBeanDefinitionReader</strong> 已经分析完毕。</p>
+<p>因为常规使用方式是不会用到<strong>AnnotationConfigApplicationContext</strong>里面的scanner的，所以这里就不解析scanner是如何被实例化的了。</p>
+<h3 id="第二行代码解析"><a href="#第二行代码解析" class="headerlink" title="第二行代码解析"></a>第二行代码解析</h3><p>接下来开始分析第二行代码</p>
+<pre class=" language-java"><code class="language-java"><span class="token function">register</span><span class="token punctuation">(</span>annotatedClasses<span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+<p>这里传进去的是一个数组，最终会循环调用如下方法：</p>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@SuppressWarnings</span><span class="token punctuation">(</span><span class="token string">"unchecked"</span><span class="token punctuation">)</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">registerBean</span><span class="token punctuation">(</span>Class<span class="token operator">&lt;</span><span class="token operator">?</span><span class="token operator">></span> annotatedClass<span class="token punctuation">,</span> String name<span class="token punctuation">,</span> Class<span class="token operator">&lt;</span><span class="token operator">?</span> <span class="token keyword">extends</span> <span class="token class-name">Annotation</span><span class="token operator">></span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> qualifiers<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment" spellcheck="true">//AnnotatedGenericBeanDefinition可以理解为一种数据结构，是用来描述Bean的，这里的作用就是把传入的标记了注解的类转为AnnotatedGenericBeanDefinition数据结构，里面有一个getMetadata方法，可以拿到类上的注解</span>
+        AnnotatedGenericBeanDefinition abd <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">AnnotatedGenericBeanDefinition</span><span class="token punctuation">(</span>annotatedClass<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment" spellcheck="true">//判断是否需要跳过注解，spring中有一个@Condition注解，当不满足条件，这个bean就不会被解析</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>conditionEvaluator<span class="token punctuation">.</span><span class="token function">shouldSkip</span><span class="token punctuation">(</span>abd<span class="token punctuation">.</span><span class="token function">getMetadata</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">return</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment" spellcheck="true">//解析bean的作用域，如果没有设置的话，默认为单例</span>
+        ScopeMetadata scopeMetadata <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>scopeMetadataResolver<span class="token punctuation">.</span><span class="token function">resolveScopeMetadata</span><span class="token punctuation">(</span>abd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        abd<span class="token punctuation">.</span><span class="token function">setScope</span><span class="token punctuation">(</span>scopeMetadata<span class="token punctuation">.</span><span class="token function">getScopeName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment" spellcheck="true">//获得beanName</span>
+        String beanName <span class="token operator">=</span> <span class="token punctuation">(</span>name <span class="token operator">!=</span> null <span class="token operator">?</span> name <span class="token operator">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>beanNameGenerator<span class="token punctuation">.</span><span class="token function">generateBeanName</span><span class="token punctuation">(</span>abd<span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">.</span>registry<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+
+    <span class="token comment" spellcheck="true">//解析通用注解，填充到AnnotatedGenericBeanDefinition，解析的注解为Lazy，Primary，DependsOn，Role，Description</span>
+        AnnotationConfigUtils<span class="token punctuation">.</span><span class="token function">processCommonDefinitionAnnotations</span><span class="token punctuation">(</span>abd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment" spellcheck="true">//限定符处理，不是特指@Qualifier注解，也有可能是其他（理论上是任何注解，这里没有判断注解的有效性），如果我们在外面，以类似这种</span>
+        <span class="token comment" spellcheck="true">//AnnotationConfigApplicationContext annotationConfigApplicationContext = new AnnotationConfigApplicationContext(Appconfig.class);常规方式去初始化spring，</span>
+        <span class="token comment" spellcheck="true">//qualifiers永远都是空的，包括上面的name和instanceSupplier都是同样的道理</span>
+        <span class="token comment" spellcheck="true">//但是spring提供了其他方式去注册bean，就可能会传入了</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>qualifiers <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token comment" spellcheck="true">//可以传入qualifier数组，所以需要循环处理</span>
+            <span class="token keyword">for</span> <span class="token punctuation">(</span>Class<span class="token operator">&lt;</span><span class="token operator">?</span> <span class="token keyword">extends</span> <span class="token class-name">Annotation</span><span class="token operator">></span> qualifier <span class="token operator">:</span> qualifiers<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token comment" spellcheck="true">//Primary注解优先</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>Primary<span class="token punctuation">.</span><span class="token keyword">class</span> <span class="token operator">==</span> qualifier<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    abd<span class="token punctuation">.</span><span class="token function">setPrimary</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+                <span class="token comment" spellcheck="true">//Lazy注解</span>
+                <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>Lazy<span class="token punctuation">.</span><span class="token keyword">class</span> <span class="token operator">==</span> qualifier<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    abd<span class="token punctuation">.</span><span class="token function">setLazyInit</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+                <span class="token comment" spellcheck="true">//其他，AnnotatedGenericBeanDefinition有个Map&lt;String,AutowireCandidateQualifier>属性，直接push进去</span>
+                <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                    abd<span class="token punctuation">.</span><span class="token function">addQualifier</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">AutowireCandidateQualifier</span><span class="token punctuation">(</span>qualifier<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        <span class="token comment" spellcheck="true">//把AnnotatedGenericBeanDefinition数据结构和beanName封装到一个对象中</span>
+        BeanDefinitionHolder definitionHolder <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">BeanDefinitionHolder</span><span class="token punctuation">(</span>abd<span class="token punctuation">,</span> beanName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        definitionHolder <span class="token operator">=</span> AnnotationConfigUtils<span class="token punctuation">.</span><span class="token function">applyScopedProxyMode</span><span class="token punctuation">(</span>scopeMetadata<span class="token punctuation">,</span> definitionHolder<span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">.</span>registry<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment" spellcheck="true">//注册，最终会调用DefaultListableBeanFactory中的registerBeanDefinition方法去注册</span>
+        <span class="token comment" spellcheck="true">//DefaultListableBeanFactory维护着一系列信息，比如beanDefinitionNames，beanDefinitionMap</span>
+        <span class="token comment" spellcheck="true">//beanDefinitionNames是一个List&lt;String>,用来保存beanName</span>
+        <span class="token comment" spellcheck="true">//beanDefinitionMap是一个Map,用来保存beanName和beanDefinition</span>
+BeanDefinitionReaderUtils<span class="token punctuation">.</span><span class="token function">registerBeanDefinition</span><span class="token punctuation">(</span>definitionHolder<span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">.</span>registry<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span></code></pre>
+<p>在这里又要说明下，以常规方式去注册配置类，此方法中除了第一个参数，其他参数都是默认值。</p>
+<p>1通过<strong>AnnotatedGenericBeanDefinition</strong>的构造方法，获得配置类的<strong>BeanDefinition</strong>，这里是不是似曾相似，在注册<strong>ConfigurationClassPostProcessor</strong>类的时候，也是通过构造方法去获得<strong>BeanDefinition</strong>的，只不过当时是通过<strong>RootBeanDefinition</strong>去获得，现在是通过<strong>AnnotatedGenericBeanDefinition</strong>去获得。</p>
+<p>判断需不需要跳过注册，Spring中有一个@Condition注解，如果不满足条件，就会跳过这个类的注册。</p>
+<p>这是上面代码的最后一步，也就是注册：</p>
+<p>（调用<strong>DefaultListableBeanFactory</strong>中的<strong>registerBeanDefinition</strong>方法去注册）</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">registerBeanDefinition</span><span class="token punctuation">(</span>
+            BeanDefinitionHolder definitionHolder<span class="token punctuation">,</span> BeanDefinitionRegistry registry<span class="token punctuation">)</span>
+            <span class="token keyword">throws</span> BeanDefinitionStoreException <span class="token punctuation">{</span>
+
+        <span class="token comment" spellcheck="true">// Register bean definition under primary name.</span>
+        String beanName <span class="token operator">=</span> definitionHolder<span class="token punctuation">.</span><span class="token function">getBeanName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        registry<span class="token punctuation">.</span><span class="token function">registerBeanDefinition</span><span class="token punctuation">(</span>beanName<span class="token punctuation">,</span> definitionHolder<span class="token punctuation">.</span><span class="token function">getBeanDefinition</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment" spellcheck="true">// Register aliases for bean name, if any.</span>
+        String<span class="token punctuation">[</span><span class="token punctuation">]</span> aliases <span class="token operator">=</span> definitionHolder<span class="token punctuation">.</span><span class="token function">getAliases</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>aliases <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">for</span> <span class="token punctuation">(</span>String alias <span class="token operator">:</span> aliases<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                registry<span class="token punctuation">.</span><span class="token function">registerAlias</span><span class="token punctuation">(</span>beanName<span class="token punctuation">,</span> alias<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span></code></pre>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/07/12/SPRING-IOC%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-BEAN%E7%9A%84%E4%BA%A7%E7%94%9F/" rel="prev" title="SPRING-IOC源码解析-BEAN的产生">
+      <i class="fa fa-chevron-left"></i> SPRING-IOC源码解析-BEAN的产生
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#剖析SPRING-IOC源码（一）"><span class="nav-number">1.</span> <span class="nav-text">剖析SPRING-IOC源码（一）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#第一行代码解析"><span class="nav-number">1.0.1.</span> <span class="nav-text">第一行代码解析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第二行代码解析"><span class="nav-number">1.0.2.</span> <span class="nav-text">第二行代码解析</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">javaboy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">javaboy</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
