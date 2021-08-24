@@ -20,17 +20,20 @@
     var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="tags">
-<meta property="og:url" content="http://yoursite.com/tags/index.html">
+  <meta name="description" content="使用多线程的优点">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用多线程的优点">
+<meta property="og:url" content="http://yoursite.com/2021/08/25/%E4%BD%BF%E7%94%A8%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%9A%84%E4%BC%98%E7%82%B9/index.html">
 <meta property="og:site_name" content="javaboy">
+<meta property="og:description" content="使用多线程的优点">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-08-24T15:06:01.000Z">
-<meta property="article:modified_time" content="2021-08-24T15:17:58.861Z">
+<meta property="article:published_time" content="2021-08-24T19:13:45.866Z">
+<meta property="article:modified_time" content="2021-08-24T19:27:49.237Z">
 <meta property="article:author" content="javaboy">
+<meta property="article:tag" content="使用多线程的优点">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://yoursite.com/tags/">
+<link rel="canonical" href="http://yoursite.com/2021/08/25/%E4%BD%BF%E7%94%A8%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%9A%84%E4%BC%98%E7%82%B9/">
 
 
 <script id="page-configurations">
@@ -38,13 +41,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>tags | javaboy
-</title>
+  <title>使用多线程的优点 | javaboy</title>
   
 
 
@@ -158,134 +160,94 @@
       <div class="main-inner">
         <div class="content-wrap">
           
-  
-  
 
-          <div class="content page posts-expand">
+          <div class="content post posts-expand">
             
 
     
-    
-    
-    <div class="post-block" lang="zh-CN">
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/08/25/%E4%BD%BF%E7%94%A8%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%9A%84%E4%BC%98%E7%82%B9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/javaboy.jfif">
+      <meta itemprop="name" content="javaboy">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="javaboy">
+    </span>
       <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用多线程的优点
+        </h1>
 
-<h1 class="post-title" itemprop="name headline">tags
-</h1>
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
 
-<div class="post-meta">
+              <time title="创建时间：2021-08-25 03:13:45 / 修改时间：03:27:49" itemprop="dateCreated datePublished" datetime="2021-08-25T03:13:45+08:00">2021-08-25</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">多线程</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">使用多线程的优点</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>背景:以单核CPU为例，只使用单个线程先后完成多个任务(调用多个方<br>法)，肯定比用多个线程来完成用的时间更短，为何仍需多线程呢?<br /><br><br />多线程程序的优点:<br><br />1.提高应用程序的响应。对图形化界面更有意义，可增强用户体验。<br><br />2.提高计算机系统CPU的利用率<br><br />3.改善程序结构。将既长又复杂的进程分为多个线程，独立运行，利于理解和<br>修改<br />​</p>
+<p>何时需要多线程：<br />●程序需要同时执行两个或多个任务。<br><br />●程序需要实现一-些需要等待的任务时，如用户输入、文件读写<br>操作、网络操作、搜索等。<br><br />●需要一些后台运行的程序时。<br><br /></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E4%BD%BF%E7%94%A8%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%9A%84%E4%BC%98%E7%82%B9/" rel="tag"># 使用多线程的优点</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/08/25/%E5%8D%95%E6%A0%B8%E4%B8%8E%E5%A4%9A%E6%A0%B8cpu/" rel="prev" title="单核与多核cpu">
+      <i class="fa fa-chevron-left"></i> 单核与多核cpu
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
   
 
-</div>
-
-</header>
-
-      
-      
-      
-      <div class="post-body">
-          <div class="tag-cloud">
-
-            <div class="tag-cloud-title">
-              目前共计 3 个标签
-            </div>
-            <div class="tag-cloud-tags">
-              <a href="/tags/%E4%BD%BF%E7%94%A8%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%9A%84%E4%BC%98%E7%82%B9/" style="font-size: 12px; color: #ccc">使用多线程的优点</a> <a href="/tags/%E5%8D%95%E6%A0%B8%E4%B8%8E%E5%A4%9A%E6%A0%B8cpu/" style="font-size: 12px; color: #ccc">单核与多核cpu</a> <a href="/tags/%E8%BF%9B%E7%A8%8B%E5%92%8C%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%8C%BA%E5%88%AB/" style="font-size: 12px; color: #ccc">进程和线程的区别</a>
-            </div>
-          </div>
-   <script type="text/javascript">
-     var alltags = document.getElementsByClassName('tag-cloud-tags');
-     var tags = alltags[0].getElementsByTagName('a');
-     for (var i = tags.length - 1; i >= 0; i--) {
-       var golden_ratio = 0.618033988749895;
-       var s = 0.5;
-       var v = 0.999;
-       var h = golden_ratio + Math.random()*0.8 - 0.5;
-       var h_i = parseInt(h * 6);
-       var f = h * 6 - h_i;
-       var p = v * (1 - s);
-       var q = v * (1 - f * s);
-       var t = v * (1 - (1 - f) * s);
-       var r, g, b;
-       switch (h_i) {
-          case 0:
-              r = v;
-              g = t;
-              b = p;
-              break;
-          case 1:
-              r = q;
-              g = v;
-              b = p;
-              break;
-          case 2:
-              r = p;
-              g = v;
-              b = t;
-              break;
-          case 3 :
-              r = p;
-              g = q;
-              b = v;
-              break;
-          case 4:
-              r = t;
-              g = p;
-              b = v;
-              break;
-          case 5:
-              r = v;
-              g = p;
-              b = q;
-              break;
-          default:
-              r = 1;
-              g = 1;
-              b = 1;
-        }
-       tags[i].style.background = "rgba("+parseInt(r*255)+","+parseInt(g*255)+","+parseInt(b*255)+","+0.5+")";
-     }
-</script>
-
-<style>
-  .tag-cloud-tags{
-    text-align: center;
-    counter-reset: tags;
-  }
-  .tag-cloud-tags a{
-    display: inline-block;
-    border: 0px;
-    border-radius: 10px;
-    padding: 0px 10px;
-    margin: 8px;
-    color: rgba(34, 34, 34, 0.8);
-    
-  }
-/* 文字前添加相应的符号，content后的Unicode可以自定义*/
-  .tag-cloud-tags a:before{
-    font-family: 'Font Awesome 5 Free';
-    content: "\f02b";
-    font-weight: 900;
-  }
-
-  .tag-cloud-tags a:hover{
-     box-shadow: 0px 5px 15px 0px rgba(0,0,0,.4);
-     transform: scale(1.1);
-     transition-duration: 0.15s;
-  }
-</style>
-	
-        
-      </div>
-      
-      
-      
-    </div>
-    
-
-    
-    
-    
 
 
           </div>
