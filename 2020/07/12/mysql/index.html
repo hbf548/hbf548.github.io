@@ -230,9 +230,11 @@
 <p>Hash、Bx<br>为什么哈希表、完全平衡二叉树、B树、B+树都可以优化查询，为何Mysql独独喜欢B+树？<br>大家可以先看一下下面的动图</p>
 <p><img src="1.jpg" alt=""></p>
 <p>注意字段值所对应的数组下标是哈希算法随机算出来的，所以可能出现<strong>哈希冲突</strong>。<br>那么对于这样一个索引结构，现在来执行下面的sql语句：</p>
-<pre class=" language-mysql"><code class="language-mysql">select * from sanguo where name='``鸡蛋'</code></pre>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from sanguo where name&#x3D;&#39;&#96;&#96;鸡蛋&#39;</span><br></pre></td></tr></table></figure>
+
 <p>可以直接对‘鸡蛋’按哈希算法算出来一个数组下标，然后可以直接从数据中取出数据并拿到所对应那一行数据的地址，进而查询那一行数据， 那么如果现在执行下面的sql语句：</p>
-<pre class=" language-mysql"><code class="language-mysql">select * from sanguo where name>'``鸡蛋'</code></pre>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from sanguo where name&gt;&#39;&#96;&#96;鸡蛋&#39;</span><br></pre></td></tr></table></figure>
+
 <p>则无能为力，因为<strong>哈希表的特点就是可以快速的精确查询，但是不支持范围查询</strong>。<br>如果做成了索引，那速度也是很慢的，要全部扫描。</p>
 <p><strong>你说的是无序的Hash表，那有没有有序的数据结构？</strong><br><strong>有序数组</strong>，它就比较优秀了呀，它在等值查询的和范围查询的时候都很Nice。</p>
 <p><strong>那它完全没有缺点么？</strong><br>不是的，有序的适合静态数据，因为如果我们新增、删除、修改数据的时候就会改变他的结构。<br>比如你新增一个，那在你新增的位置后面所有的节点都会后移，成本很高。</p>
