@@ -27,11 +27,13 @@
 <meta property="og:site_name" content="javaboy">
 <meta property="og:description" content="跨域">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2021/04/13/feBaldAmjItpM5K.jpg">
 <meta property="article:published_time" content="2020-07-11T22:40:49.000Z">
-<meta property="article:modified_time" content="2021-03-24T13:19:36.027Z">
+<meta property="article:modified_time" content="2021-04-13T11:54:53.417Z">
 <meta property="article:author" content="javaboy">
 <meta property="article:tag" content="域">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/04/13/feBaldAmjItpM5K.jpg">
 
 <link rel="canonical" href="http://yoursite.com/2020/07/12/%E8%B7%A8%E5%9F%9F/">
 
@@ -196,7 +198,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-03-24 21:19:36" itemprop="dateModified" datetime="2021-03-24T21:19:36+08:00">2021-03-24</time>
+                <time title="修改时间：2021-04-13 19:54:53" itemprop="dateModified" datetime="2021-04-13T19:54:53+08:00">2021-04-13</time>
               </span>
 
           
@@ -227,6 +229,7 @@
 <p><a href="http://www.nealyang.cn:8080/index.html" target="_blank" rel="noopener">http://www.nealyang.cn:8080/index.html</a> 调用  <a href="http://www.nealyang.cn/server.php" target="_blank" rel="noopener">http://www.nealyang.cn/server.php</a> 跨域,端口不同</p>
 <p><a href="https://www.nealyang.cn/index.html" target="_blank" rel="noopener">https://www.nealyang.cn/index.html</a> 调用  <a href="http://www.nealyang.cn/server.php" target="_blank" rel="noopener">http://www.nealyang.cn/server.php</a> 跨域,协议不同</p>
 <p>localhost  调用 127.0.0.1 跨域</p>
+<p><img src="https://i.loli.net/2021/04/13/feBaldAmjItpM5K.jpg" alt="1618228194641.jpg"></p>
 <h2 id="为什么浏览器不支持跨域请求"><a href="#为什么浏览器不支持跨域请求" class="headerlink" title="为什么浏览器不支持跨域请求"></a>为什么浏览器不支持跨域请求</h2><p>为了保证安全性，防止CSRF攻击。CSRF(Cross-site request forgery),中文名称跨站请求伪造。<br>可以这么理解CSRF:攻击者盗用了你的身份，以你的名义发送恶意请求。CSRF能够做的事情包括：以你名义发送邮件，发消息，盗取你的账号，甚至于购买商品，虚拟货币转账……造成的问题包括：个人隐私泄露以及财产安全。<br><strong>解决跨域的办法有N种，做常用的主要以下几种：</strong></p>
 <ul>
 <li><p>document.domain + iframe (只有在主域相同的时候才能使用该方法)</p>
