@@ -27,16 +27,16 @@
 <meta property="og:site_name" content="hbf548">
 <meta property="og:description" content="Runnable">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2021/png/411176/1627270188753-f8bbf44b-20d2-4d25-86e1-2275a86c54b1.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2021/png/411176/1627270194378-38e3488f-27bb-454d-b106-728aab2e9ee4.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2021/png/411176/1627270209954-f7dc5667-59fb-457b-818a-72f9c9854a46.png">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2021/png/411176/1627105152748-03704f0a-5add-4299-ae8c-c6b90caf4063.png">
-<meta property="article:published_time" content="2021-08-26T16:33:11.618Z">
-<meta property="article:modified_time" content="2021-08-26T16:33:11.618Z">
+<meta property="og:image" content="https://hbf548.github.io/2021/08/27/Runnable/1627270188753-f8bbf44b-20d2-4d25-86e1-2275a86c54b1.png">
+<meta property="og:image" content="https://hbf548.github.io/2021/08/27/Runnable/1627270194378-38e3488f-27bb-454d-b106-728aab2e9ee4.png">
+<meta property="og:image" content="https://hbf548.github.io/2021/08/27/Runnable/1627270209954-f7dc5667-59fb-457b-818a-72f9c9854a46.png">
+<meta property="og:image" content="https://hbf548.github.io/2021/08/27/Runnable/1627105152748-03704f0a-5add-4299-ae8c-c6b90caf4063.png">
+<meta property="article:published_time" content="2021-08-26T18:41:39.233Z">
+<meta property="article:modified_time" content="2021-08-26T18:41:39.233Z">
 <meta property="article:author" content="hbf548">
 <meta property="article:tag" content="Runnable">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2021/png/411176/1627270188753-f8bbf44b-20d2-4d25-86e1-2275a86c54b1.png">
+<meta name="twitter:image" content="https://hbf548.github.io/2021/08/27/Runnable/1627270188753-f8bbf44b-20d2-4d25-86e1-2275a86c54b1.png">
 
 <link rel="canonical" href="https://hbf548.github.io/2021/08/27/Runnable/">
 
@@ -196,7 +196,7 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-08-27 00:33:11" itemprop="dateCreated datePublished" datetime="2021-08-27T00:33:11+08:00">2021-08-27</time>
+              <time title="创建时间：2021-08-27 02:41:39" itemprop="dateCreated datePublished" datetime="2021-08-27T02:41:39+08:00">2021-08-27</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -220,15 +220,21 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <ul>
+        <meta name="referrer" content="no-referrer">
+
+<ul>
 <li>定义MyRunnable类实现Runnable接口</li>
 <li>实现run()方法,编写线程执行体</li>
 <li>创建线程对象，调用start()方法启动线程。</li>
 </ul>
-<p>注意：<br>通过实现Runnable方法启动的线程。通过Thread类调用start（）方法启动线程，调用当前线程的润方法。===》但是它调用的是Runnable类型的target的run（）方法。<br><img src="https://cdn.nlark.com/yuque/0/2021/png/411176/1627270188753-f8bbf44b-20d2-4d25-86e1-2275a86c54b1.png" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2021/png/411176/1627270194378-38e3488f-27bb-454d-b106-728aab2e9ee4.png" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2021/png/411176/1627270209954-f7dc5667-59fb-457b-818a-72f9c9854a46.png" alt="image.png"><br>​<br></p>
+<p>注意：<br>通过实现Runnable方法启动的线程。通过Thread类调用start（）方法启动线程，调用当前线程的润方法。===》但是它调用的是Runnable类型的target的run（）方法。<br><img src="/2021/08/27/Runnable/1627270188753-f8bbf44b-20d2-4d25-86e1-2275a86c54b1.png" alt="image"></p>
+<p><img src="/2021/08/27/Runnable/1627270194378-38e3488f-27bb-454d-b106-728aab2e9ee4.png" alt="image"></p>
+<p><img src="/2021/08/27/Runnable/1627270209954-f7dc5667-59fb-457b-818a-72f9c9854a46.png" alt="image"></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//实现runnable接口，重写run方法，执行线程需要丢入runnable接口实现，调用start方法</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestThread</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">//run方法线程体</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">20</span>; i++) &#123;</span><br><span class="line">            System.out.println(<span class="string">"我在写代码=========="</span> + i);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//创建runnable接口的实现类</span></span><br><span class="line">        TestThread testThread = <span class="keyword">new</span> TestThread();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//创建线程对象，通过线程对象来开启我们的线程，代理</span></span><br><span class="line">        Thread thread = <span class="keyword">new</span> Thread(testThread);</span><br><span class="line"></span><br><span class="line">        thread.start();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//mian线程，主线程</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">2000</span>; i++) &#123;</span><br><span class="line">            System.out.println(<span class="string">"我在学习======="</span>+i);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><img src="https://cdn.nlark.com/yuque/0/2021/png/411176/1627105152748-03704f0a-5add-4299-ae8c-c6b90caf4063.png" alt="image.png"><br>结果一样！<br>​</p>
-<p>因为java中支持单继承，而可以实现多个接口，所以一般用Runnable接口！<br>​</p>
+
+<p>结果一样！</p>
+<p>因为java中支持单继承，而可以实现多个接口，所以一般用Runnable接口！</p>
+<p><img src="/2021/08/27/Runnable/1627105152748-03704f0a-5add-4299-ae8c-c6b90caf4063.png" alt="image"></p>
 
     </div>
 
@@ -247,10 +253,13 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/08/25/%E7%BB%A7%E6%89%BFThread%E7%B1%BB/" rel="prev" title="继承Thread类">
+    <a href="/2021/08/27/%E7%BB%A7%E6%89%BFThread%E7%B1%BB/" rel="prev" title="继承Thread类">
       <i class="fa fa-chevron-left"></i> 继承Thread类
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2021/08/27/%E5%AE%9E%E7%8E%B0Callable%E6%8E%A5%E5%8F%A3/" rel="next" title="实现Callable接口">
+      实现Callable接口 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -324,7 +333,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-count">31</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -337,7 +346,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">31</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
